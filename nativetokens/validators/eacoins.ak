@@ -12,10 +12,15 @@ type ConditionsRedeemer {
   price: Int,
 }
 
+//{"constreaNFTctor":0,fields[{"constructor":0,fields:[]},{"int": 1713194931000},{"bytes": "d40e3e791bead1fd8c003f1227906b66a2a1c04e59d663798017db71"},{"int": 50}]}
+
 type Action {
   Owner
+  //{"constructor":0,fields:[]}
   Time
 }
+
+//"constructor":1,fields:[]} 
 
 type VerificationKeyHash =
   Hash<Blake2b_224, VerificationKey>
@@ -24,7 +29,8 @@ validator {
   fn eaCoins(redeemer: ConditionsRedeemer, ctx: ScriptContext) -> Bool {
     when redeemer.action is {
       Owner -> must_be_signed_by(ctx.transaction, redeemer.owner)
-      Time  -> must_happen_before(ctx.transaction.validity_range, redeemer.deadline)
+      Time ->
+        must_happen_before(ctx.transaction.validity_range, redeemer.deadline)
     }
   }
 }

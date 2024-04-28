@@ -1,5 +1,5 @@
 name = "rcerrud/justvalidators"
-version = "0.0.1"
+version = "0.1.1"
 license = "Apache-2.0"
 description = "Aiken contracts for project 'rcerrud/justvalidators'"
 
@@ -10,5 +10,10 @@ platform = "github"
 
 [[dependencies]]
 name = "aiken-lang/stdlib"
-version = "1.7.0"
+version = "1.8.0"
+source = "github"
+
+[[dependencies]]
+name = "aiken-lang/fuzz"
+version = "2a6df1220e0d180eb36cfe4e4265a2d47c5b83cb"
 source = "github"
