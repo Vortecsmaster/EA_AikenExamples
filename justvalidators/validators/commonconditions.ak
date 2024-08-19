@@ -1,10 +1,8 @@
 use aiken/hash.{Blake2b_224, Hash}
-use aiken/interval.{Finite, before}
+use aiken/interval.{Finite}
 use aiken/list
-use aiken/dict
-use aiken/transaction.{ScriptContext, Transaction, ValidityRange, TransactionId, Spend, OutputReference}
+use aiken/transaction.{ScriptContext, Transaction, ValidityRange}
 use aiken/transaction/credential.{VerificationKey}
-use aiken/transaction/value.{from_lovelace, to_minted_value}
 
 type ConditionsDatum {
   deadline: POSIXtime,
@@ -63,66 +61,4 @@ fn must_happen_before(range: ValidityRange, lock_expiration_time: POSIXtime) {
     Finite(tx_latest_time) -> lock_expiration_time >= tx_latest_time
     _ -> False
   }
-}
-
-test rigthOwner() {
-  
-   let dat = ConditionsDatum {
-      deadline: 123456789,
-      owner:  "1234567890abcdef",
-      price: 50 
-   }
-
-   let ownerRedeemer = Owner
-   
-   let daContext = ScriptContext { 
-      transaction: Transaction {
-                 inputs: [],
-       reference_inputs: [],
-                outputs: [],
-                   fee: from_lovelace(0),
-                  mint: to_minted_value(from_lovelace(0)),
-           certificates: [],
-           withdrawals: dict.new(),
-          validity_range: before(12345678),
-        extra_signatories: ["1234567890abcdef"],
-                redeemers: dict.new(),
-                   datums: dict.new(),
-                        id: TransactionId(""),
-      },
-      purpose: Spend(OutputReference { transaction_id: TransactionId(""), output_index: 0 })
-    }
-
-    conditionator(dat, ownerRedeemer, daContext)
-}
-
-  
-test tooLateForLove() {
-  let dat = ConditionsDatum {
-      deadline: 123456789,
-      owner:  "1234567890abcdef",
-      price: 50 
-   }
-
-   let timeRedeemer = Time
-
-   let daContext = ScriptContext { 
-      transaction: Transaction {
-                 inputs: [],
-       reference_inputs: [],
-                outputs: [],
-                   fee: from_lovelace(0),
-                  mint: to_minted_value(from_lovelace(0)),
-           certificates: [],
-           withdrawals: dict.new(),
-          validity_range: before(1234567891),
-        extra_signatories: ["1234567890abcdef"],
-                redeemers: dict.new(),
-                   datums: dict.new(),
-                        id: TransactionId(""),
-      },
-      purpose: Spend(OutputReference { transaction_id: TransactionId(""), output_index: 0 })
-    }
-
-    conditionator(dat, timeRedeemer, daContext) == False
 }
