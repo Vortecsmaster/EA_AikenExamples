@@ -26,8 +26,6 @@ type PubKeyHash =
   Hash<Blake2b_224, VerificationKey>
 
 
-
-
 validator(uniqueUTxO: OutputReference, token_name: ByteArray ) {
   fn eaNFT(redeemer: ConditionsRedeemer, sContext: ScriptContext) {
   
