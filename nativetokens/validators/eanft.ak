@@ -1,49 +1,46 @@
-use aiken/dict
+use aiken/dict.{to_pairs}
 use aiken/hash.{Blake2b_224, Hash}
-use aiken/interval.{Finite}
+use aiken/interval.{Finite, before}
 use aiken/list
 use aiken/time.{PosixTime}
-use aiken/transaction.{OutputReference, ScriptContext, Transaction, ValidityRange} as tx
-use aiken/transaction/credential.{VerificationKey}
-use aiken/transaction/value.{PolicyId}
+use aiken/transaction.{OutputReference, ScriptContext, Transaction, ValidityRange, Mint, TransactionId, Output, NoDatum, Input} as tx
+use aiken/transaction/credential.{VerificationKey,from_verification_key}
+use aiken/transaction/value.{PolicyId, from_minted_value, from_lovelace, to_minted_value, merge, from_asset}
+
 
 type ConditionsRedeemer {
   action: Action,
   deadline: PosixTime,
-  owner: VerificationKeyHash,
+  owner: PubKeyHash,
   price: Int,
 }
 
-//{"constructor":0,fields[{"constructor":0,fields:[]},{"int": 1713194931000},{"bytes": "d40e3e791bead1fd8c003f1227906b66a2a1c04e59d663798017db71"},{"int": 50}]}
+//{"constructor":0,fields[{"int":0},{"int": 1713194931000},{"bytes": "d40e3e791bead1fd8c003f1227906b66a2a1c04e59d663798017db71"},{"int": 50}]}
 
+type Action = Int
+// 0 -> Owner
+// 1 -> Time
 
-
-//"data Action = Owner | Time" | Price
-
-type Action {
-  Owner //{"constructor":0,fields:[]}
-  Time  //"constructor":1,fields:[]} 
- // Price //"constructor":2,fields:[]}
-}
-
-
-type VerificationKeyHash =
+type PubKeyHash =
   Hash<Blake2b_224, VerificationKey>
 
-validator(txOutRef: OutputReference, token_name: ByteArray ) {
-  fn eaNFT(redeemer: ConditionsRedeemer, ctx: ScriptContext) {
-    let purpose = ctx.purpose
-    
-    expect tx.Mint(policy_id) = purpose
 
-    utxoSpent(txOutRef, ctx.transaction)                        &&
-    there_can_be_only_ONE(ctx.transaction,policy_id,token_name) && 
+
+
+validator(uniqueUTxO: OutputReference, token_name: ByteArray ) {
+  fn eaNFT(redeemer: ConditionsRedeemer, sContext: ScriptContext) {
+  
+    expect Mint(policy_id) = sContext.purpose
+
+    utxoSpent(uniqueUTxO, sContext.transaction)                      &&
+    there_can_be_only_ONE(sContext.transaction,policy_id,token_name) && 
     
     when redeemer.action is {
-      Owner -> must_be_signed_by(ctx.transaction, redeemer.owner)
-      Time  -> must_happen_before(ctx.transaction.validity_range, redeemer.deadline)
-    }
+      0  -> must_be_signed_by(sContext.transaction, redeemer.owner)
+      1  -> must_happen_before(sContext.transaction.validity_range, redeemer.deadline)
+      _  -> False
   }
+}
 }
 
 fn utxoSpent(utxo_ref: OutputReference, txInfo: Transaction) {
@@ -54,16 +51,16 @@ fn utxoSpent(utxo_ref: OutputReference, txInfo: Transaction) {
 fn there_can_be_only_ONE(txInfo: Transaction, policy_id: PolicyId, token_name: ByteArray) {
   let mint = txInfo.mint
   
-  expect [(asset_name, amount)] =
+  expect [Pair(asset_name, amount)] =
       mint
-        |> value.from_minted_value
+        |> from_minted_value
         |> value.tokens(policy_id)
-        |> dict.to_list()
+        |> dict.to_pairs()
   
   amount == 1 && asset_name == token_name
 }
 
-fn must_be_signed_by(transaction: Transaction, vk: VerificationKeyHash) {
+fn must_be_signed_by(transaction: Transaction, vk: PubKeyHash) {
   list.has(transaction.extra_signatories, vk)
 }
 
@@ -72,4 +69,32 @@ fn must_happen_before(range: ValidityRange, lock_expiration_time: PosixTime) {
     Finite(tx_latest_time) -> lock_expiration_time <= tx_latest_time
     _ -> False
   }
+}
+
+
+
+// Tests
+
+test utxoSpent_test() {
+  let utxo_ref = OutputReference(TransactionId {hash: #"0000000000000000000000000000000000000000000000000000000000000000",}, 0)
+  let token_value = from_asset("41D0",#"6e6f5f6e616d655f746f6b656e", 1) 
+  let tx_value = merge(from_lovelace(11000000), token_value)
+  let dummy_addr = from_verification_key(#"2070f8488dd696b78a5f23e38d273550e43660526c4b19cba733b488") //Address{VerificationKeyCredential{"AD812"}, None}
+  let output = Output(dummy_addr, tx_value, NoDatum, None)
+  let input = Input(utxo_ref,Output(dummy_addr, from_lovelace(50000000), NoDatum, None))
+  let minted_value = to_minted_value(token_value)
+  let tx = Transaction(
+      [input],
+      [],
+      [output],
+       from_lovelace(2000000),
+       minted_value,
+       [],
+       [],
+        before(1000000000),
+       [],  //signatores
+       [],  //redeemers
+       dict.new(),  //datums
+       TransactionId("AD812"))
+  utxoSpent(utxo_ref, tx) == True
 }
