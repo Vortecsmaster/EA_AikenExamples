@@ -7,29 +7,16 @@ import {netid} from "./settings.ts";
 const user1 = await Lucid(new Blockfrost("https://cardano-preview.blockfrost.io/api/v0", Deno.env.get("BLOCKFROST_PROJECT_ID"),),netid);
 const user2 = await Lucid(new Blockfrost("https://cardano-preview.blockfrost.io/api/v0", Deno.env.get("BLOCKFROST_PROJECT_ID"),),netid);
 
+const user1pk = await Deno.readTextFile("../../../../Wallets/Charlie.prk");
 
-// Generate a new private key
-const privateKey01 = generatePrivateKey();
-const publicKey01 = toPublicKey(privateKey01);
-user1.selectWallet.fromPrivateKey(privateKey01)
+user1.selectWallet.fromPrivateKey(user1pk);
 const address01 = await user1.wallet().address();
 
-// Generate a private key out of a seed phrase
-const seedPhrase02 = generateSeedPhrase();
-const privateKey02 = generatePrivateKey(seedPhrase02);
-const publicKey02 = toPublicKey(privateKey02);
+// console.log("User 1");
+// console.log(user1pk);
+// console.log(address01);
 
-user2.selectWallet.fromSeed(seedPhrase02);
 
-const address02 = await user2.wallet().address();
+const utxos = await user1.utxosAt(address01);
 
-console.log("User 1");
-console.log(privateKey01);
-console.log(publicKey01);
-console.log(address01);
-console.log("----------------");
-console.log("User 2"); 
-console.log(seedPhrase02);
-console.log(privateKey02);
-console.log(publicKey02);
-console.log(address02);
+console.log(utxos);

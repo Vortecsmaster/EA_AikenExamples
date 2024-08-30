@@ -4,16 +4,42 @@ import * as CML from "npm:@anastasia-labs/cardano-multiplatform-lib-nodejs";
 // import { parseArgs } from "jsr:@std/cli/parse-args";
 // import eaNFT from "...ls ." assert { type: "json" };
 
-const validatorFile: string = Deno.args[0];
+const validatorFile1: string = Deno.args[0];
+const validatorFile2: string = Deno.args[1];
 
 async function getValidator(filePath: string) {
         return JSON.parse(await Deno.readTextFile(filePath));
 }
 
-const validator: any = await getValidator(validatorFile);
+const validator1: any = await getValidator(validatorFile1);
+const validator2: any = await getValidator(validatorFile2);
 
 console.log(validatorFile);
 console.log(validator);
+
+
+const paramsVal = new ConstantSourceNode(0, ["","",0])
+
+const utxoRef = new Constr(0, [
+        //     new Constr(0, ["d1a52676c0bf8468a1d54fa7c63e18a9a1c89c180c337db16363495c88324f2c"]),
+        //     BigInt(1)]);: 
+
+//const paramsEAnftTokenValidator = applyParamsToScript(validator.cborHex, [BigInt(1)]);
+
+//const paramsTokenHolderPolicy = applyParamsToScript(tokenHolderPolicyJSON.cborHex,[utxoRef]);
+// const paramsTokenHolderPolicyJSON: contractJSON = {
+//     type: "PlutusV2",
+//     description: "The parametrized token holder minting policy.",
+//     cborHex: paramsTokenHolderPolicy
+// }
+// const paramsTokenHolderPolicyLucid: WithdrawalValidator = {
+//     type: "PlutusV2",
+//     script: paramsTokenHolderPolicy
+//   };
+
+// console.log("CREATED!");
+
+
 
 
 
@@ -37,30 +63,9 @@ console.log(validator);
 // // import * as cbor from "https://deno.land/x/cbor@v1.4.1/index.js";
 // // import * as J from "https://deno.land/x/jsonschema/jsonschema.ts";
 
-// import tokenHolderPolicy from "../../DiscoveryCompiled/tokenHolderPolicy.json" assert { type: "json" };
-// import discoveryPolicy from "../../DiscoveryCompiled/discoveryMinting.json" assert { type: "json" };
-// import foldValidator from "../../DiscoveryCompiled/foldValidator.json" assert { type: "json" };
-// import foldPolicy from "../../DiscoveryCompiled/foldMint.json" assert { type: "json" };                   
-// import rewardFoldValidator from "../../DiscoveryCompiled/rewardFoldValidator.json" assert { type: "json" };
-// import rewardFoldMintPolicy from "../../DiscoveryCompiled/rewardFoldMint.json" assert { type: "json" };                  //rewardPolicy
-// import tokenHolderValidator from "../../DiscoveryCompiled/tokenHolderValidator.json" assert { type: "json" };
-// import discoveryStakeValidator from "../../DiscoveryCompiled/discoveryStakeValidator.json" assert { type: "json" };
-// import discoveryValidator from "../../DiscoveryCompiled/discoveryValidator.json" assert { type: "json" };
 
 // const lucid = await Lucid.new(new Blockfrost("https://cardano-preview.blockfrost.io/api/v0", Deno.env.get("BLOCKFROST_API_KEY"),
 //                                             ), "Preview");
-// const _PROJECT_CS_: string = "c08f73d996ce8a098d32cab68e0ca41fee128a5665956f3cd732a895";
-// const _PROJECT_ADDR_: string = "addr_test1qp6q60m2zh9gntv38wttcu7ujdgr5svc2z8pygfgyq4x4yytxlj5zp3z8p03npnnm2jc8xd4t2kuyf2slxxw2rjwrp9qe5zasy"
-
-
-// const tokenHolderPolicyJSON: contractJSON = tokenHolderPolicy;
-// const discoveryPolicyJSON: contractJSON = discoveryPolicy;
-// const foldValidatorJSON: contractJSON = foldValidator;
-// const foldPolicyJSON: contractJSON = foldPolicy;
-// const rewardFoldValidatorJSON: contractJSON = rewardFoldValidator;
-// const rewardFoldMintPolicyJSON: contractJSON = rewardFoldMintPolicy;
-// const discoveryStakeValidatorJSON: contractJSON = discoveryStakeValidator;
-// const discoveryValidatorJSON: contractJSON = discoveryValidator;
 
 
 // const deadline24h = new Date().getTime() + 86400000   // Based on Slot# 4509190400; //(3600s * 24h) + 86400s/dia
@@ -141,7 +146,9 @@ console.log(validator);
 //     foldValidatorAddress.data,
 //     BigInt(deadline24h) // discoveryDeadline PInteger
 //   ]);
-
+const utxoRef = new Constr(0, [
+        //     new Constr(0, ["d1a52676c0bf8468a1d54fa7c63e18a9a1c89c180c337db16363495c88324f2c"]),
+        //     BigInt(1)]);
 // const paramsFoldMintingPolicy = applyParamsToScript(foldPolicyJSON.cborHex, [foldMintingPolicyParams]);
 
 // const paramsFoldMintingPolicyJSON = {

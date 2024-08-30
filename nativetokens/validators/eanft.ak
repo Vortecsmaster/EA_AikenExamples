@@ -54,7 +54,7 @@ fn there_can_be_only_ONE(txInfo: Transaction, policy_id: PolicyId, token_name: B
       mint
         |> from_minted_value
         |> value.tokens(policy_id)
-        |> dict.to_pairs()
+        |> to_pairs()
   
   amount == 1 && asset_name == token_name
 }

@@ -20,3 +20,5 @@ Cargo.lock
 *.signed
 *.pid
 *.uplc
+*.addr
+*.pk

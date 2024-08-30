@@ -1,11 +1,8 @@
-
-use aiken/hash.{Blake2b_224, Hash}
-use aiken/interval.{Finite, before}
-
-use aiken/time.{PosixTime}
-use aiken/transaction.{OutputReference, Transaction, ValidityRange, Mint, TransactionId, Output, NoDatum, Input} as tx
+use aiken/dict
+use aiken/interval.{before}
+use aiken/transaction.{OutputReference, Transaction, TransactionId, Output, NoDatum, Input} as tx
 use aiken/transaction/credential.{from_verification_key}
-use aiken/transaction/value.{PolicyId, from_lovelace, to_minted_value, merge, from_asset}
+use aiken/transaction/value.{from_lovelace, to_minted_value, merge, from_asset}
 
 
 pub fn dummyTransaction() -> Transaction {
