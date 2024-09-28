@@ -16,6 +16,6 @@ cardano-cli conway transaction sign \
     $PREVIEW \
     --out-file deposit.signed
 
-cardano-cli transaction submit \
+cardano-cli conway transaction submit \
     $PREVIEW \
     --tx-file deposit.signed
