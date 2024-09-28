@@ -1,16 +1,16 @@
-name = "rcerrud/justvalidators"
-version = "0.1.1"
+name = "vortecsmaster/justvalidators"
+version = "0.2.1"
 license = "Apache-2.0"
-description = "Aiken contracts for project 'rcerrud/justvalidators'"
+description = "Aiken contracts for project 'vortecsmaster/justvalidators'"
 
 [repository]
-user = "rcerrud"
+user = "vortecsmaster"
 project = "justvalidators"
 platform = "github"
 
 [[dependencies]]
 name = "aiken-lang/stdlib"
-version = "1.9.0"
+version = "2.1.0"
 source = "github"
 
 [[dependencies]]

@@ -18,9 +18,15 @@ console.log(validatorFile);
 console.log(validator);
 
 
-const paramsVal = new ConstantSourceNode(0, ["","",0])
+const signerPkh_1 = CML.toPublicKey();
+const signerPkh_2 = CML.toPublicKey(validator2.signer);
 
-const utxoRef = new Constr(0, [
+console.log(signerPkh_1);
+console.log(signerPkh_2);
+
+// const paramsVal = new ConstantSourceNode(0, [signerPkh_1,signerPkh_2"",0])
+
+// const utxoRef = new Constr(0, [,,BigInt(0)]);
         //     new Constr(0, ["d1a52676c0bf8468a1d54fa7c63e18a9a1c89c180c337db16363495c88324f2c"]),
         //     BigInt(1)]);: 
 
@@ -146,7 +152,7 @@ const utxoRef = new Constr(0, [
 //     foldValidatorAddress.data,
 //     BigInt(deadline24h) // discoveryDeadline PInteger
 //   ]);
-const utxoRef = new Constr(0, [
+// const utxoRef = new Constr(0, [
         //     new Constr(0, ["d1a52676c0bf8468a1d54fa7c63e18a9a1c89c180c337db16363495c88324f2c"]),
         //     BigInt(1)]);
 // const paramsFoldMintingPolicy = applyParamsToScript(foldPolicyJSON.cborHex, [foldMintingPolicyParams]);
