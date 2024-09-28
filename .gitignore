@@ -23,3 +23,5 @@ Cargo.lock
 *.addr
 *.pk
 *.signed
+*.signed
+*.skey
