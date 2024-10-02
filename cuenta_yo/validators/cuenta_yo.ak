@@ -1,39 +1,23 @@
-use aiken/hash.{Blake2b_224, Hash}
-use aiken/list.{any}
-use aiken/transaction.{ScriptContext, Spend, Transaction}
-use aiken/transaction/credential.{VerificationKey}
+use aiken/crypto.{VerificationKeyHash}
+use aiken/collection/list.{any}
+use cardano/transaction.{Transaction}
 
-type PubKeyHash =
-  Hash<Blake2b_224, VerificationKey>
-
-type TipoCuenta =
-  Int
-
+type TipoCuenta = Int
 // 0 - Cuenta O
 // 1 - Cuenta Y
 
-type DatumYO {
-  firmante_1: PubKeyHash,
-  firmante_2: PubKeyHash,
+pub type DatumYO {
+  firmante_1: VerificationKeyHash,
+  firmante_2: VerificationKeyHash,
   tipo_cuenta: TipoCuenta,
 }
 
-validator {
-  fn cuenta_yo(
-    datum: DatumYO,
-    redeemer: TipoCuenta,
-    sContext: ScriptContext,
-  ) -> Bool {
-    when sContext.purpose is {
-      Spend(_) ->
-        datum.tipo_cuenta == redeemer && cuentas_tipo(
-          datum,
-          sContext.transaction,
-        )
-      _ -> False
-    }
+validator cuenta_yo() {
+  spend(datum: Option<DatumYO>, redeemer: TipoCuenta, _target: Data, tx_info: Transaction) {
+      expect Some(datum) = datum
+      datum.tipo_cuenta == redeemer && cuentas_tipo(datum, tx_info)
   }
-}
+}  
 
 fn cuentas_tipo(datum: DatumYO, txInfo: Transaction) -> Bool {
   when datum.tipo_cuenta is {
@@ -54,22 +38,22 @@ fn cuentas_tipo(datum: DatumYO, txInfo: Transaction) -> Bool {
 }
 
 fn comparacion_O(
-  firmante_1: PubKeyHash,
-  firmante_2: PubKeyHash,
-  firmantes: List<PubKeyHash>,
+  firmante_1: VerificationKeyHash,
+  firmante_2: VerificationKeyHash,
+  firmantes: List<VerificationKeyHash>,
 ) {
   buscarFirma(firmante_1, firmantes) || buscarFirma(firmante_2, firmantes)
 }
 
 fn comparacion_Y(
-  firmante_1: PubKeyHash,
-  firmante_2: PubKeyHash,
-  firmantes: List<PubKeyHash>,
+  firmante_1: VerificationKeyHash,
+  firmante_2: VerificationKeyHash,
+  firmantes: List<VerificationKeyHash>,
 ) {
   buscarFirma(firmante_1, firmantes) && buscarFirma(firmante_2, firmantes)
 }
 
-fn buscarFirma(firma: PubKeyHash, firmas: List<PubKeyHash>) -> Bool {
+fn buscarFirma(firma: VerificationKeyHash, firmas: List<VerificationKeyHash>) -> Bool {
   any(firmas, fn(f) { f == firma })
 }
 
