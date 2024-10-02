@@ -1,81 +1,91 @@
-use aiken/dict.{to_pairs}
-use aiken/hash.{Blake2b_224, Hash}
+use aiken/collection/dict
+use aiken/collection/list
+use aiken/crypto.{VerificationKeyHash}
 use aiken/interval.{Finite}
-use aiken/list
-use aiken/time.{PosixTime}
-use aiken/transaction.{OutputReference, ScriptContext, Transaction, ValidityRange, Mint, TransactionId, Input} as tx
-use aiken/transaction/credential.{VerificationKey}
-use aiken/transaction/value.{PolicyId,from_minted_value,}
-use nativetokens/utils.{dummyTransaction}
+use cardano/assets.{AssetName, PolicyId}
+use cardano/transaction.{Input, OutputReference, Transaction, ValidityRange}
+use nativetokens/utils
 
-
-type ConditionsRedeemer {
+/// {"constructor":0,fields[{"int":0},{"int": 1713194931000},{"bytes": "d40e3e791bead1fd8c003f1227906b66a2a1c04e59d663798017db71"},{"int": 50}]}
+pub type ConditionsRedeemer {
   action: Action,
-  deadline: PosixTime,
-  owner: PubKeyHash,
+  deadline: Int,
+  owner: VerificationKeyHash,
   price: Int,
 }
 
-//{"constructor":0,fields[{"int":0},{"int": 1713194931000},{"bytes": "d40e3e791bead1fd8c003f1227906b66a2a1c04e59d663798017db71"},{"int": 50}]}
+/// - 0 -> Owner
+/// - 1 -> Time
+pub type Action =
+  Int
 
-type Action = Int
-// 0 -> Owner
-// 1 -> Time
+validator ea_nft(unique_utxo: OutputReference, token_name: AssetName) {
+  mint(
+    redeemer: ConditionsRedeemer,
+    policy_id: PolicyId,
+    transaction: Transaction,
+  ) {
+    and {
+      utxo_spent(unique_utxo, transaction)?,
+      there_can_be_only_one(transaction, policy_id, token_name)?,
+      when redeemer.action is {
+        // Owner:
+        0 -> must_be_signed_by(transaction, redeemer.owner)?
 
-type PubKeyHash =
-  Hash<Blake2b_224, VerificationKey>
+        // Time:
+        1 -> must_happen_before(transaction.validity_range, redeemer.deadline)?
 
+        _ -> False
+      },
+    }
+  }
 
-validator(uniqueUTxO: OutputReference, token_name: ByteArray ) {
-  fn eaNFT(redeemer: ConditionsRedeemer, sContext: ScriptContext) {
-  
-    expect Mint(policy_id) = sContext.purpose
-
-    utxoSpent(uniqueUTxO, sContext.transaction)                      &&
-    there_can_be_only_ONE(sContext.transaction,policy_id,token_name) && 
-    
-    when redeemer.action is {
-      0  -> must_be_signed_by(sContext.transaction, redeemer.owner)
-      1  -> must_happen_before(sContext.transaction.validity_range, redeemer.deadline)
-      _  -> False
+  else(_) {
+    fail
   }
 }
+
+fn utxo_spent(utxo_ref: OutputReference, tx_info: Transaction) {
+  let Transaction { inputs, .. } = tx_info
+  inputs |> list.any(fn(input) { input.output_reference == utxo_ref })
 }
 
-fn utxoSpent(utxo_ref: OutputReference, txInfo: Transaction) {
-  let Transaction(inputs, ..) = txInfo
-  list.any(inputs, fn(input){input.output_reference == utxo_ref })
-}
-
-fn there_can_be_only_ONE(txInfo: Transaction, policy_id: PolicyId, token_name: ByteArray) {
-  let mint = txInfo.mint
-  
+fn there_can_be_only_one(
+  tx_info: Transaction,
+  policy_id: PolicyId,
+  token_name: AssetName,
+) {
+  let Transaction { mint, .. } = tx_info
   expect [Pair(asset_name, amount)] =
-      mint
-        |> from_minted_value
-        |> value.tokens(policy_id)
-        |> dict.to_pairs()
-  
-  amount == 1 && asset_name == token_name
+    mint
+      |> assets.tokens(policy_id)
+      |> dict.to_pairs()
+
+  and {
+    (amount == 1)?,
+    (asset_name == token_name)?,
+  }
 }
 
-fn must_be_signed_by(transaction: Transaction, vk: PubKeyHash) {
-  list.has(transaction.extra_signatories, vk)
+fn must_be_signed_by(transaction: Transaction, vk: VerificationKeyHash) {
+  transaction.extra_signatories |> list.has(vk)
 }
 
-fn must_happen_before(range: ValidityRange, lock_expiration_time: PosixTime) {
+fn must_happen_before(range: ValidityRange, lock_expiration_time: Int) {
   when range.upper_bound.bound_type is {
-    Finite(tx_latest_time) -> lock_expiration_time <= tx_latest_time
+    Finite(tx_latest_time) -> (lock_expiration_time <= tx_latest_time)?
     _ -> False
   }
 }
 
+// ## Tests
 
-
-// Tests
-
-test utxoSpent_test() {
-  let utxo_ref = OutputReference(TransactionId {hash: #"0000000000000000000000000000000000000000000000000000000000000000",}, 0)
-  let tx = dummyTransaction()
-  utxoSpent(utxo_ref, tx) == True
+test utxo_spent_test() {
+  let utxo_ref =
+    OutputReference(
+      #"0000000000000000000000000000000000000000000000000000000000000000",
+      0,
+    )
+  let tx = utils.dummy_transaction()
+  utxo_spent(utxo_ref, tx)?
 }
