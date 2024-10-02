@@ -36,7 +36,7 @@ fn cuentas_tipo(datum: DatumYO, tx_info: Transaction) -> Bool {
   when datum.tipo_cuenta is {
     // Cuenta O:
     0 ->
-      comparacion_O(
+      comparacion_o(
         datum.firmante_1,
         datum.firmante_2,
         tx_info.extra_signatories,
@@ -44,7 +44,7 @@ fn cuentas_tipo(datum: DatumYO, tx_info: Transaction) -> Bool {
 
     // Cuenta Y:
     1 ->
-      comparacion_Y(
+      comparacion_y(
         datum.firmante_1,
         datum.firmante_2,
         tx_info.extra_signatories,
@@ -54,45 +54,45 @@ fn cuentas_tipo(datum: DatumYO, tx_info: Transaction) -> Bool {
   }
 }
 
-fn comparacion_O(
+fn comparacion_o(
   firmante_1: VerificationKeyHash,
   firmante_2: VerificationKeyHash,
   firmantes: List<VerificationKeyHash>,
 ) {
   or {
-    buscarFirma(firmante_1, firmantes)?,
-    buscarFirma(firmante_2, firmantes)?,
+    buscar_firma(firmante_1, firmantes)?,
+    buscar_firma(firmante_2, firmantes)?,
   }
 }
 
-fn comparacion_Y(
+fn comparacion_y(
   firmante_1: VerificationKeyHash,
   firmante_2: VerificationKeyHash,
   firmantes: List<VerificationKeyHash>,
 ) {
   and {
-    buscarFirma(firmante_1, firmantes)?,
-    buscarFirma(firmante_2, firmantes)?,
+    buscar_firma(firmante_1, firmantes)?,
+    buscar_firma(firmante_2, firmantes)?,
   }
 }
 
-fn buscarFirma(
+fn buscar_firma(
   firma: VerificationKeyHash,
   firmas: List<VerificationKeyHash>,
 ) -> Bool {
   firmas |> list.any(fn(f) { f == firma })
 }
 
-test prueba_comparaion_O() {
-  comparacion_O("AD81", "BC82", ["AD81", "BC82", "CD35"])?
+test prueba_comparaion_o() {
+  comparacion_o("AD81", "BC82", ["AD81", "BC82", "CD35"])?
 }
 
-test prueba_comparacion_Y() {
-  comparacion_Y("AD81", "BC82", ["AD81", "BC82", "CD35"])?
+test prueba_comparacion_y() {
+  comparacion_y("AD81", "BC82", ["AD81", "BC82", "CD35"])?
 }
 
-test prueba_buscarFirma() {
-  buscarFirma("AD81", ["AD81", "BC82"])?
+test prueba_buscar_firma() {
+  buscar_firma("AD81", ["AD81", "BC82"])?
 }
 // test prueba_cuentas_tipo() {
 //   cuentas_tipo(0)?
