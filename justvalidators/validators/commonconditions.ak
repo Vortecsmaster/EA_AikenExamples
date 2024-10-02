@@ -3,11 +3,11 @@ use aiken/crypto.{VerificationKeyHash}
 use aiken/interval.{Finite}
 use cardano/transaction.{OutputReference, Transaction, ValidityRange}
 
-pub type POSIXtime =
+pub type PosixTime =
   Int
 
 pub type ConditionsDatum {
-  deadline: POSIXtime,
+  deadline: PosixTime,
   owner: VerificationKeyHash,
   price: Int,
 }
@@ -65,7 +65,7 @@ fn must_be_signed_by(transaction: Transaction, vk: VerificationKeyHash) {
   transaction.extra_signatories |> list.has(vk)
 }
 
-fn must_happen_before(range: ValidityRange, lock_expiration_time: POSIXtime) {
+fn must_happen_before(range: ValidityRange, lock_expiration_time: PosixTime) {
   when range.upper_bound.bound_type is {
     Finite(tx_latest_time) -> (lock_expiration_time >= tx_latest_time)?
     _ -> False
