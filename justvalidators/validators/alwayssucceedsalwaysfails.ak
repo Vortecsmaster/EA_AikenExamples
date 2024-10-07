@@ -1,20 +1,21 @@
-validator {
-  fn alwaysSucceeds(_datum: Data, _redeemer: Data, _context: Data) -> Bool {
+use aiken/builtin.{i_data, b_data}
+
+validator always_succeeds {
+  spend(_datum: Option<Data>, _redeemer: Data, _targe: Data, _context: Data) -> Bool {
     True
   }
 }
 
-validator {
-  fn alwaysFails(_datum: Data, _redeemer: Data, _context: Data) -> Bool {
+validator  always_fails {
+  spend(_datum: Option<Data>, _redeemer: Data, _targe: Data, _context: Data) -> Bool {
     False
   }
 }
 
-
 test test_numbers() {
-  alwaysSucceeds(1, 2, 3) == True && alwaysFails(1, 2, 3) == False
+  always_succeeds.spend(Some(i_data(1)),2, 3, 4) == True && always_fails.spend(Some(i_data(1)),2, 3, 4) == False
 }
 
 test test_bytestrings() {
-  alwaysSucceeds("a", "b", "c") == True && alwaysFails("a", "b", "c") == False
+  always_succeeds.spend(Some(b_data("a")), "b", "c", "d") == True && always_fails.spend(Some(b_data("a")), "b", "c", "d") == False
 }
