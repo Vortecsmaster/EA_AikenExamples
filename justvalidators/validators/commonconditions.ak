@@ -1,64 +1,73 @@
-use aiken/hash.{Blake2b_224, Hash}
+use aiken/collection/list
+use aiken/crypto.{VerificationKeyHash}
 use aiken/interval.{Finite}
-use aiken/list
-use aiken/transaction.{ScriptContext, Transaction, ValidityRange}
-use aiken/transaction/credential.{VerificationKey}
+use cardano/transaction.{OutputReference, Transaction, ValidityRange}
 
-type ConditionsDatum {
-  deadline: POSIXtime,
+pub type PosixTime =
+  Int
+
+pub type ConditionsDatum {
+  deadline: PosixTime,
   owner: VerificationKeyHash,
   price: Int,
 }
 
-type VerificationKeyHash =
-  Hash<Blake2b_224, VerificationKey>
-
-type POSIXtime =
-  Int
-
-type ActionRedeemer {
+pub type ActionRedeemer {
   Owner
   Time
 }
 
-type OurWonderfullDatum {
+pub type OurWonderfullDatum {
   owd: Int,
 }
 
-type OurWonderfullRedeemer {
+pub type OurWonderfullRedeemer {
   owr: Int,
 }
 
-validator {
-  fn ourWonderfullValidator(
-    datum: OurWonderfullDatum,
+validator our_wonderfull_validator {
+  spend(
+    datum: Option<OurWonderfullDatum>,
     redeemer: OurWonderfullRedeemer,
-    _context: Data,
-  ) -> Bool {
-    datum.owd == redeemer.owr
+    _output_reference: OutputReference,
+    _transaction: Transaction,
+  ) {
+    expect Some(data) = datum
+    (data.owd == redeemer.owr)?
+  }
+
+  else(_) {
+    fail
   }
 }
 
-validator {
-  fn conditionator(
-    datum: ConditionsDatum,
+validator conditionator {
+  spend(
+    datum: Option<ConditionsDatum>,
     redeemer: ActionRedeemer,
-    ctx: ScriptContext,
-  ) -> Bool {
+    _output_reference: OutputReference,
+    transaction: Transaction,
+  ) {
+    expect Some(data) = datum
+    let ConditionsDatum { owner, deadline, .. } = data
     when redeemer is {
-      Owner -> must_be_signed_by(ctx.transaction, datum.owner)
-      Time -> must_happen_before(ctx.transaction.validity_range, datum.deadline)
+      Owner -> must_be_signed_by(transaction, owner)?
+      Time -> must_happen_before(transaction.validity_range, deadline)?
     }
+  }
+
+  else(_) {
+    fail
   }
 }
 
 fn must_be_signed_by(transaction: Transaction, vk: VerificationKeyHash) {
-  list.has(transaction.extra_signatories, vk)
+  transaction.extra_signatories |> list.has(vk)
 }
 
-fn must_happen_before(range: ValidityRange, lock_expiration_time: POSIXtime) {
+fn must_happen_before(range: ValidityRange, lock_expiration_time: PosixTime) {
   when range.upper_bound.bound_type is {
-    Finite(tx_latest_time) -> lock_expiration_time >= tx_latest_time
+    Finite(tx_latest_time) -> (lock_expiration_time >= tx_latest_time)?
     _ -> False
   }
 }

@@ -1,35 +1,68 @@
-validator {
-  fn typeddatum22(datum: Int, _redeemer: Data, _context: Data) -> Bool {
-    datum == 22
+validator typed_datum_22 {
+  spend(
+    datum: Option<Int>,
+    _redeemer: Data,
+    _output_reference: Data,
+    _transaction: Data,
+  ) {
+    datum == Some(22)
+  }
+
+  else(_) {
+    fail
   }
 }
 
-validator {
-  fn typedRedeemer11(_datum: Data, redeemer: Int, _context: Data) -> Bool {
+validator typed_redeemer_11 {
+  spend(
+    _datum: Option<Data>,
+    redeemer: Int,
+    _output_reference: Data,
+    _transaction: Data,
+  ) {
     redeemer == 11
   }
-}
 
-validator {
-  fn datumVSredeemer(datum: Int, redeemer: Int, _context: Data) -> Bool {
-    redeemer == datum
+  else(_) {
+    fail
   }
 }
 
-type OurWonderfullDatum {
+validator datum_vs_redeemer {
+  spend(
+    datum: Option<Int>,
+    redeemer: Int,
+    _output_reference: Data,
+    _transaction: Data,
+  ) {
+    Some(redeemer) == datum
+  }
+
+  else(_) {
+    fail
+  }
+}
+
+pub type OurWonderfullDatum {
   owd: Int,
 }
 
-type OurWonderfullRedeemer {
+pub type OurWonderfullRedeemer {
   owr: Int,
 }
 
-validator {
-  fn ourWonderfullValidator(
-    datum: OurWonderfullDatum,
+validator our_wonderfull_validator {
+  spend(
+    datum: Option<OurWonderfullDatum>,
     redeemer: OurWonderfullRedeemer,
-    _context: Data,
-  ) -> Bool {
-    datum.owd == redeemer.owr
+    _output_reference: Data,
+    _transaction: Data,
+  ) {
+    expect Some(data) = datum
+    data.owd == redeemer.owr
+  }
+
+  else(_) {
+    fail
   }
 }

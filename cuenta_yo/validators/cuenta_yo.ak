@@ -1,98 +1,108 @@
-use aiken/hash.{Blake2b_224, Hash}
-use aiken/list.{any}
-use aiken/transaction.{ScriptContext, Spend, Transaction}
-use aiken/transaction/credential.{VerificationKey}
+use aiken/collection/list
+use aiken/crypto.{VerificationKeyHash}
+use cardano/transaction.{OutputReference, Transaction}
 
-type PubKeyHash =
-  Hash<Blake2b_224, VerificationKey>
-
-type TipoCuenta =
+/// - 0 - Cuenta O
+/// - 1 - Cuenta Y
+pub type TipoCuenta =
   Int
 
-// 0 - Cuenta O
-// 1 - Cuenta Y
-
-type DatumYO {
-  firmante_1: PubKeyHash,
-  firmante_2: PubKeyHash,
+pub type DatumYO {
+  firmante_1: VerificationKeyHash,
+  firmante_2: VerificationKeyHash,
   tipo_cuenta: TipoCuenta,
 }
 
-validator {
-  fn cuenta_yo(
-    datum: DatumYO,
+validator cuenta_yo {
+  spend(
+    datum: Option<DatumYO>,
     redeemer: TipoCuenta,
-    sContext: ScriptContext,
-  ) -> Bool {
-    when sContext.purpose is {
-      Spend(_) ->
-        datum.tipo_cuenta == redeemer && cuentas_tipo(
-          datum,
-          sContext.transaction,
-        )
-      _ -> False
+    _utxo: OutputReference,
+    tx_info: Transaction,
+  ) {
+    expect Some(data) = datum
+    and {
+      (data.tipo_cuenta == redeemer)?,
+      cuentas_tipo(data, tx_info)?,
     }
+  }
+
+  else(_) {
+    fail
   }
 }
 
-fn cuentas_tipo(datum: DatumYO, txInfo: Transaction) -> Bool {
+fn cuentas_tipo(datum: DatumYO, tx_info: Transaction) -> Bool {
   when datum.tipo_cuenta is {
+    // Cuenta O:
     0 ->
-      comparacion_O(
+      comparacion_o(
         datum.firmante_1,
         datum.firmante_2,
-        txInfo.extra_signatories,
+        tx_info.extra_signatories,
       )
+
+    // Cuenta Y:
     1 ->
-      comparacion_Y(
+      comparacion_y(
         datum.firmante_1,
         datum.firmante_2,
-        txInfo.extra_signatories,
+        tx_info.extra_signatories,
       )
+
     _ -> False
   }
 }
 
-fn comparacion_O(
-  firmante_1: PubKeyHash,
-  firmante_2: PubKeyHash,
-  firmantes: List<PubKeyHash>,
+fn comparacion_o(
+  firmante_1: VerificationKeyHash,
+  firmante_2: VerificationKeyHash,
+  firmantes: List<VerificationKeyHash>,
 ) {
-  buscarFirma(firmante_1, firmantes) || buscarFirma(firmante_2, firmantes)
+  or {
+    buscar_firma(firmante_1, firmantes)?,
+    buscar_firma(firmante_2, firmantes)?,
+  }
 }
 
-fn comparacion_Y(
-  firmante_1: PubKeyHash,
-  firmante_2: PubKeyHash,
-  firmantes: List<PubKeyHash>,
+fn comparacion_y(
+  firmante_1: VerificationKeyHash,
+  firmante_2: VerificationKeyHash,
+  firmantes: List<VerificationKeyHash>,
 ) {
-  buscarFirma(firmante_1, firmantes) && buscarFirma(firmante_2, firmantes)
+  and {
+    buscar_firma(firmante_1, firmantes)?,
+    buscar_firma(firmante_2, firmantes)?,
+  }
 }
 
-fn buscarFirma(firma: PubKeyHash, firmas: List<PubKeyHash>) -> Bool {
-  any(firmas, fn(f) { f == firma })
+fn buscar_firma(
+  firma: VerificationKeyHash,
+  firmas: List<VerificationKeyHash>,
+) -> Bool {
+  firmas |> list.any(fn(f) { f == firma })
 }
 
-test prueba_comparaion_O() {
-  comparacion_O("AD81", "BC82", ["AD81", "BC82", "CD35"])
+test prueba_comparaion_o() {
+  comparacion_o("AD81", "BC82", ["AD81", "BC82", "CD35"])?
 }
 
-test prueba_comparacion_Y() {
-  comparacion_Y("AD81", "BC82", ["AD81", "BC82", "CD35"])
+test prueba_comparacion_y() {
+  comparacion_y("AD81", "BC82", ["AD81", "BC82", "CD35"])?
 }
 
-test prueba_buscarFirma() {
-  buscarFirma("AD81", ["AD81", "BC82"])
+test prueba_buscar_firma() {
+  buscar_firma("AD81", ["AD81", "BC82"])?
 }
 // test prueba_cuentas_tipo() {
-//   cuentas_tipo(0)
+//   cuentas_tipo(0)?
 // }
 // test prueba_cuenta_yo() {
 //   cuenta_yo(
 //     DatumYO { firmante_1: "AD81", firmante_2: "AD82", tipo_cuenta: 0 },
 //     0,
 //     ,
-//   )
+//   )?
 // }
 //1. Crear/Escoger carpeta para el proyecto.
 //2. Crear nuevo andamiaje del proyecto cmd: aiken new <nombre de tu espacio>/<nombre de tu projecto>

@@ -2,31 +2,52 @@ type MyRedeemer {
   red: Int,
 }
 
-validator {
-  fn handsonNo1(datum: Data, redeemer: Data, _ctx: Data) -> Bool {
-    if datum == redeemer {
+validator handson_no_1 {
+  spend(
+    datum: Option<Data>,
+    redeemer: Data,
+    _output_reference: Data,
+    _transaction: Data,
+  ) {
+    if (datum == Some(redeemer))? {
       True
     } else {
-      expect theredeemer: MyRedeemer = redeemer
-      theredeemer.red == 11
+      expect the_redeemer: MyRedeemer = redeemer
+      (the_redeemer.red == 11)?
     }
+  }
+
+  else(_) {
+    fail
   }
 }
 
-type MyType {
+pub type MyType {
   Unit
   Number { x: Int }
-  YesorNo { yn: Bool }
+  YesNo { yn: Bool }
 }
 
-validator {
-  fn handsNo1r(datum: MyType, redeemer: MyType, _ctx: Data) -> Bool {
+validator hands_no_1_r {
+  spend(
+    datum: Option<MyType>,
+    redeemer: MyType,
+    _output_reference: Data,
+    _transaction: Data,
+  ) {
     when (datum, redeemer) is {
-      (Number(dat1), Number(red2)) -> dat1 == red2
-      (YesorNo(dat1), YesorNo(red2)) -> dat1 == red2
-      (Unit, Unit) -> True
-      (_, Number(red2)) -> red2 == 11
+      (Some(Number(dat1)), Number(red2)) -> (dat1 == red2)?
+      (Some(YesNo(dat1)), YesNo(red2)) -> (dat1 == red2)?
+      (Some(Unit), Unit) -> True
+
+      // this means: allow spending as long as the redeemer is 11, regardless whether a datum exists or not
+      (_, Number(red2)) -> (red2 == 11)?
+
       _ -> False
     }
+  }
+
+  else(_) {
+    fail
   }
 }
