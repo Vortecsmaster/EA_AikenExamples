@@ -12,6 +12,7 @@ validator  always_fails {
   }
 }
 
+// The datum Option<Data> needs some built-in convertion functions to be used in the tests
 test test_numbers() {
   always_succeeds.spend(Some(i_data(1)),2, 3, 4) == True && always_fails.spend(Some(i_data(1)),2, 3, 4) == False
 }
@@ -19,3 +20,4 @@ test test_numbers() {
 test test_bytestrings() {
   always_succeeds.spend(Some(b_data("a")), "b", "c", "d") == True && always_fails.spend(Some(b_data("a")), "b", "c", "d") == False
 }
+

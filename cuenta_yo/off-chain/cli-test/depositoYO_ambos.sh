@@ -1,5 +1,5 @@
-utxoin1="c0fea9c929ea3f24a05ac98465c12135abafc6f70939a9f3b1180e867aef6926#1"
-utxoin2="2b3b857454305d6a91543c1bc9f379ce3cde0d4dcc5141da0cbc8a19660ae9b9#0"
+utxoin1="d1100706ed94be06ac67166eba04b13f38b02f3af6004b800b37668bc1fbc41f#0"
+utxoin2="038a4524946d09a9fb8572a4cc6121493f9f72a1f32f347720a9bf4ebc178e71#0"
 address=$(cat cuenta_yo.addr) 
 output="90000000"
 PREVIEW="--testnet-magic 2"
