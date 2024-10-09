@@ -1,5 +1,5 @@
 use aiken/crypto.{VerificationKeyHash}
-use aiken/collection/list.{any}
+use aiken/collection/list.{has}
 use cardano/transaction.{Transaction}
 
 type TipoCuenta = Int
@@ -54,7 +54,8 @@ fn comparacion_Y(
 }
 
 fn buscarFirma(firma: VerificationKeyHash, firmas: List<VerificationKeyHash>) -> Bool {
-  any(firmas, fn(f) { f == firma })
+  has(firmas,firma)
+  //any(firmas, fn(f) { f == firma })
 }
 
 test prueba_comparaion_O() {
