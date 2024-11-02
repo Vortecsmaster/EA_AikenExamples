@@ -1,45 +1,22 @@
+use aiken/builtin.{i_data, b_data}
+
 validator always_succeeds {
-  spend(
-    _datum: Option<Data>,
-    _redeemer: Data,
-    _output_reference: Data,
-    _transaction: Data,
-  ) {
+  spend(_datum: Option<Data>, _redeemer: Data, _targe: Data, _context: Data) -> Bool {
     True
   }
 
-  else(_) {
-    fail
-  }
-}
-
-validator always_fails {
-  spend(
-    _datum: Option<Data>,
-    _redeemer: Data,
-    _output_reference: Data,
-    _transaction: Data,
-  ) {
+validator  always_fails {
+  spend(_datum: Option<Data>, _redeemer: Data, _targe: Data, _context: Data) -> Bool {
     False
   }
-
-  else(_) {
-    fail
-  }
 }
 
+// The datum Option<Data> needs some built-in convertion functions to be used in the tests
 test test_numbers() {
-  let datum_1: Data = 1
-  and {
-    always_succeeds.spend(Some(datum_1), 2, 3, 4)?,
-    !always_fails.spend(Some(datum_1), 2, 3, 4)?,
-  }
+  always_succeeds.spend(Some(i_data(1)),2, 3, 4) == True && always_fails.spend(Some(i_data(1)),2, 3, 4) == False
 }
 
 test test_bytestrings() {
-  let datum_a: Data = "a"
-  and {
-    always_succeeds.spend(Some(datum_a), "b", "c", "d")?,
-    !always_fails.spend(Some(datum_a), "b", "c", "d")?,
-  }
+  always_succeeds.spend(Some(b_data("a")), "b", "c", "d") == True && always_fails.spend(Some(b_data("a")), "b", "c", "d") == False
 }
+

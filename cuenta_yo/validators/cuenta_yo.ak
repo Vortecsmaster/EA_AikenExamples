@@ -1,11 +1,12 @@
-use aiken/collection/list
+use aiken/collection/list.{has}
 use aiken/crypto.{VerificationKeyHash}
-use cardano/transaction.{OutputReference, Transaction}
+use cardano/transaction.{Transaction}
 
-/// - 0 - Cuenta O
-/// - 1 - Cuenta Y
-pub type TipoCuenta =
+type TipoCuenta =
   Int
+
+// 0 - Cuenta O
+// 1 - Cuenta Y
 
 pub type DatumYO {
   firmante_1: VerificationKeyHash,
@@ -76,11 +77,12 @@ fn comparacion_y(
   }
 }
 
-fn buscar_firma(
+fn buscarFirma(
   firma: VerificationKeyHash,
   firmas: List<VerificationKeyHash>,
 ) -> Bool {
-  firmas |> list.any(fn(f) { f == firma })
+  has(firmas, firma)
+  //any(firmas, fn(f) { f == firma })
 }
 
 test prueba_comparaion_o() {

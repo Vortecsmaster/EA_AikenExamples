@@ -16,4 +16,10 @@ Cargo.lock
 *.lock
 *.pid
 *.uplc
-*.lock
+*.body
+*.unsigned
+*.signed
+*.addr
+*.pk
+*.skey
+*.body
