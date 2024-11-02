@@ -1,5 +1,5 @@
 name = "rcerrud/nativetokens"
-version = "0.0.0"
+version = "0.2.1"
 compiler = "v1.1.4"
 plutus = "v3"
 license = "Apache-2.0"

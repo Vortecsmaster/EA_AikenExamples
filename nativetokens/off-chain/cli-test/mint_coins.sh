@@ -1,9 +1,9 @@
 utxoin1="544d3e557d10949f9a0f3325c21566f394c7deb7bbd88565e981820abac7d863#0"
-policyid=$(cat ../compiled/eacoins.pid)
+policyid=$(cat ../compiled/ea_NFT.pid)
 output="11000000"
-tokenamount="110"
+tokenamount="2"
 tokenname="$(echo -n "WoW-λ-🐦😍" | xxd -ps | tr -d '\n')"
-mintingScript="../compiled/eacoins.uplc"
+mintingScript="../compiled/ea_NFT.uplc"
 collateral="4cbf990857530696a12b0062546a4b123ad0bef21c67562e32d03e3288bdcd7b#0"
 ownerPKH=$(cat $HOME/Dev/Wallets/Bob.pkh)
 notneeded="--invalid-hereafter 10962786"

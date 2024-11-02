@@ -1,4 +1,4 @@
-import {Lucid, Blockfrost, Credential} from "npm:@lucid-evolution/lucid";
+import {Lucid, Blockfrost, Credential, Data, Plutus} from "npm:@lucid-evolution/lucid";
 import {applyParamsToScript} from "npm:@lucid-evolution/utils";
 import * as CML from "npm:@anastasia-labs/cardano-multiplatform-lib-nodejs";
 // import { parseArgs } from "jsr:@std/cli/parse-args";
