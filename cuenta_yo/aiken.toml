@@ -1,12 +1,12 @@
-name = "rcerrud/cuenta_yo"
-version = "0.0.0"
-compiler = "v1.1.3"
+name = "vortecsmaster/cuenta_yo"
+version = "0.0.3"
+compiler = "v1.1.4"
 plutus = "v3"
 license = "Apache-2.0"
-description = "Aiken contracts for project 'rcerrud/cuenta_yo'"
+description = "Aiken contracts for project 'vortecsmaster/cuenta_yo'"
 
 [repository]
-user = "rcerrud"
+user = "vortecsmaster"
 project = "cuenta_yo"
 platform = "github"
 
