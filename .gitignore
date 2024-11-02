@@ -17,3 +17,5 @@ Cargo.lock
 *.pid
 *.uplc
 *.lock
+*.addr
+*.pk
