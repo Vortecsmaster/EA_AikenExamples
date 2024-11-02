@@ -1,32 +1,52 @@
-use aiken/dict
-use aiken/interval.{before}
-use aiken/transaction.{OutputReference, Transaction, TransactionId, Output, NoDatum, Input} as tx
-use aiken/transaction/credential.{from_verification_key}
-use aiken/transaction/value.{from_lovelace, to_minted_value, merge, from_asset}
+use aiken/interval
+use cardano/address
+use cardano/assets
+use cardano/transaction.{Input, NoDatum, Output, OutputReference, Transaction}
 
+pub fn dummy_transaction() -> Transaction {
+  let utxo_ref =
+    OutputReference(
+      #"0000000000000000000000000000000000000000000000000000000000000000",
+      0,
+    )
 
-pub fn dummyTransaction() -> Transaction {
- 
-  let utxo_ref = OutputReference(TransactionId {hash: #"0000000000000000000000000000000000000000000000000000000000000000",}, 0)
-  let token_value = from_asset("41D0",#"6e6f5f6e616d655f746f6b656e", 1) 
-  let tx_value = merge(from_lovelace(11000000), token_value)
-  let dummy_addr = from_verification_key(#"2070f8488dd696b78a5f23e38d273550e43660526c4b19cba733b488") //Address{VerificationKeyCredential{"AD812"}, None}
-  let output = Output(dummy_addr, tx_value, NoDatum, None)
-  let input = Input(utxo_ref,Output(dummy_addr, from_lovelace(50000000), NoDatum, None))
-  let minted_value = to_minted_value(token_value)
-  let tx = Transaction(
-      [input],
-      [],
-      [output],
-       from_lovelace(2000000),
-       minted_value,
-       [],
-       [],
-        before(1000000000),
-       [],  //signatores
-       [],  //redeemers
-       dict.new(),  //datums
-       TransactionId("AD812"))
- 
-    tx
+  let token_value = assets.from_asset("41D0", #"6e6f5f6e616d655f746f6b656e", 1)
+  let tx_value = assets.from_lovelace(11_000_000) |> assets.merge(token_value)
+
+  // Address { VerificationKeyCredential { "AD812" }, None }:
+  let dummy_addr =
+    address.from_verification_key(
+      #"2070f8488dd696b78a5f23e38d273550e43660526c4b19cba733b488",
+    )
+
+  let output =
+    Output {
+      address: dummy_addr,
+      value: tx_value,
+      datum: NoDatum,
+      reference_script: None,
+    }
+  let input =
+    Input {
+      output_reference: utxo_ref,
+      output: Output {
+        address: dummy_addr,
+        value: assets.from_lovelace(50_000_000),
+        datum: NoDatum,
+        reference_script: None,
+      },
+    }
+
+  let tx =
+    Transaction {
+      ..transaction.placeholder,
+      inputs: [input],
+      outputs: [output],
+      fee: 2_000_000,
+      mint: token_value,
+      validity_range: interval.before(1000000000),
+      id: "AD812",
+    }
+
+  tx
 }

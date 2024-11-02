@@ -39,7 +39,7 @@ fn price_is_covered(tx_info: Transaction, price: Int) {
   True
 }
 
-test allConditionsFullfilled() {
+test all_conditions_fullfilled() {
   
    let dat = ConditionsDatum {
       deadline: 999999999,
