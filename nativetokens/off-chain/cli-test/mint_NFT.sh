@@ -18,15 +18,15 @@ cardano-cli conway transaction build \
   --mint "$tokenamount $policyid.$tokenname" \
   --mint-script-file $mintingScript \
   --mint-redeemer-file ../values/redeemer.json \
-  --out-file mintTx.unsigned
+  --out-file mint_NFT.unsigned
 
 cardano-cli conway transaction sign \
-    --tx-body-file mintTx.unsigned \
+    --tx-body-file mint_NFT.unsigned \
     --signing-key-file $HOME/Dev/Wallets/Bob.skey \
     --signing-key-file $HOME/Dev/Wallets/Adr07.skey \
     $PREVIEW \
-    --out-file mintTx.signed
+    --out-file mint_NFT.signed
 
  cardano-cli conway transaction submit \
     $PREVIEW \
-    --tx-file mintTx.signed
+    --tx-file mint_NFT.signed
