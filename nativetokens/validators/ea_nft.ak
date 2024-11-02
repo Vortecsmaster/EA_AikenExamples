@@ -61,7 +61,7 @@ pub fn there_can_be_only_one(
 }
 
 pub fn must_be_signed_by(transaction: Transaction, vk: VerificationKeyHash) {
-  transaction.extra_signatories |> list.has(vk)
+  list.has(transaction.extra_signatories,vk)
 }
 
 pub fn must_happen_before(range: ValidityRange, lock_expiration_time: Int) {
